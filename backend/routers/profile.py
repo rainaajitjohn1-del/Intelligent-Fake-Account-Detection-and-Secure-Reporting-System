@@ -34,7 +34,11 @@ def check_profile(data: ProfileRequest, db: Session = Depends(get_db)):
     rhythm_score = compute_rhythm_score(data.post_timestamps)
     result = compute_final_risk_score(dummy_features, rhythm_score)
 
-    is_clustered = check_cluster_similarity(db, {"ml_score": result["ml_score"]})
+    is_clustered = check_cluster_similarity(
+        db,
+        {"ml_score": result["ml_score"], "rhythm_score": result["rhythm_score"]},
+        threshold=2
+    )
 
     hashed_user = hash_data(username)
 
