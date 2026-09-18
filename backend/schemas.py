@@ -4,7 +4,7 @@ from datetime import datetime
 
 class ReportCreate(BaseModel):
     platform: str
-    raw_username: str  # Frontend/ML passes raw name; backend hashes it automatically
+    raw_username: str
     reason: str
     overall_risk_score: float
     risk_breakdown: Optional[Dict[str, float]] = None
