@@ -1,4 +1,15 @@
+# Virtual Environment
+.venv/
 venv/
-__pycache__/
-*.pyc
+ENV/
+
+# Environment Variables & Secrets
 .env
+
+# Python Cache Files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Temporary Uploads
+temp_*
