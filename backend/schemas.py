@@ -8,6 +8,8 @@ class ReportCreate(BaseModel):
     reason: str
     overall_risk_score: float
     risk_breakdown: Optional[Dict[str, float]] = None
+    rhythm_score: Optional[float] = None
+    cluster_flag: Optional[bool] = False
 
 class ReportResponse(BaseModel):
     id: int

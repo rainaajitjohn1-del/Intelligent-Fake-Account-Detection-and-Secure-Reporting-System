@@ -38,6 +38,7 @@ class ProfileCheck(Base):
     hashed_username = Column(String(64), index=True, nullable=False)
     overall_risk_score = Column(Float, nullable=False)
     risk_breakdown = Column(JSON, nullable=True)
+    rhythm_score = Column(Float, nullable=True)
     cluster_flag = Column(Boolean, default=False)
     checked_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
 
