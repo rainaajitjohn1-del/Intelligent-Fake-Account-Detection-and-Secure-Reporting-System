@@ -30,9 +30,6 @@ def hash_data(data: str) -> str:
         return ""
     return hashlib.sha256(data.encode()).hexdigest()
 
-
-
-    reports = relationship("Report", back_populates="profile_check")
 class ProfileCheck(Base):
     __tablename__ = "profile_checks"
 
@@ -41,11 +38,12 @@ class ProfileCheck(Base):
     hashed_username = Column(String(64), index=True, nullable=False)
     overall_risk_score = Column(Float, nullable=False)
     risk_breakdown = Column(JSON, nullable=True)
-    rhythm_score = Column(Float, nullable=True)          # NEW
-    cluster_flag = Column(Boolean, default=False)         # already added if you did it before — keep only one
+    rhythm_score = Column(Float, nullable=True)
+    cluster_flag = Column(Boolean, default=False)
     checked_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
 
     reports = relationship("Report", back_populates="profile_check")
+
 class Report(Base):
     __tablename__ = "reports"
 
