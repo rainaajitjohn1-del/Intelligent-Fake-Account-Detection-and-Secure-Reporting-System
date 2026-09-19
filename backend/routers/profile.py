@@ -31,7 +31,7 @@ def check_profile(data: ProfileRequest, db: Session = Depends(get_db)):
     rhythm_score = compute_rhythm_score(data.post_timestamps)
     result = compute_final_risk_score(features, rhythm_score)
 
-    is_clustered = check_cluster_similarity(
+    is_clustered, matched_ids, matched_details = check_cluster_similarity(
         db,
         {"ml_score": result["ml_score"], "rhythm_score": result["rhythm_score"]},
         threshold=2
@@ -56,8 +56,24 @@ def check_profile(data: ProfileRequest, db: Session = Depends(get_db)):
         "platform": new_check.platform,
         "risk_score": new_check.overall_risk_score,
         "rhythm_score": new_check.rhythm_score,
-        "cluster_flag": new_check.cluster_flag,
+        "cluster_flag": is_clustered,
+        "matched_profile_ids": matched_ids,
+        "cluster_evidence": matched_details,
         "status": result["risk_level"],
         "data_source": "live" if is_real_data else "estimated",
         "checked_at": new_check.checked_at
     }
+
+@router.get("/api/v1/profile-graph")
+def get_profile_graph(db: Session = Depends(get_db)):
+    checks = db.query(ProfileCheck).order_by(ProfileCheck.checked_at.asc()).all()
+    nodes = [{
+        "id": c.id,
+        "hashed_username": c.hashed_username,
+        "risk_score": c.overall_risk_score,
+        "rhythm_score": c.rhythm_score,
+        "status": "high" if c.overall_risk_score > 0.7 else "medium" if c.overall_risk_score > 0.4 else "low",
+        "cluster_flag": c.cluster_flag,
+        "checked_at": c.checked_at
+    } for c in checks]
+    return {"nodes": nodes}
