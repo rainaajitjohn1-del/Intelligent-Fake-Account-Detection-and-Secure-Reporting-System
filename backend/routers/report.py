@@ -45,3 +45,32 @@ def create_report(request: Request, payload: schemas.ReportCreate, db: Session =
 @limiter.limit("20/minute")
 def list_reports(request: Request, db: Session = Depends(get_db), api_key: str = Depends(verify_api_key)):
     return db.query(Report).all()
+from pydantic import BaseModel as PydanticBaseModel
+
+class ReportStatusUpdate(PydanticBaseModel):
+    status: str
+
+@router.patch("/api/v1/report/{report_id}")
+def update_report_status(
+    report_id: int,
+    payload: ReportStatusUpdate,
+    db: Session = Depends(get_db),
+    api_key: str = Depends(verify_api_key)
+):
+    report = db.query(Report).filter(Report.id == report_id).first()
+    if not report:
+        raise HTTPException(status_code=404, detail="Report not found")
+
+    valid_statuses = ["PENDING", "REVIEWED", "DISMISSED", "ACTIONED"]
+    if payload.status not in valid_statuses:
+        raise HTTPException(status_code=400, detail=f"Status must be one of {valid_statuses}")
+
+    report.status = payload.status
+    db.commit()
+    db.refresh(report)
+
+    return {
+        "id": report.id,
+        "status": report.status,
+        "message": f"Report {report_id} updated to {payload.status}"
+    }
